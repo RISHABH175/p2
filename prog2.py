@@ -1,46 +1,77 @@
-import numpy as np
-pt=input("enter plain txt :")
-key=input("enter key :")
-pt=pt.lower()
-key=key.lower()
-key=np.array([ord(b)-97 for b in key])
-pt=np.array([ord(a)-97 for a in pt])
-if len(key)==4:
-    size=2
-    keym=key.reshape(2,2)
-if len(key)==9:
-    size=3
-    keym=key.reshape(3,3)
-print(pt)
-ptm=np.array_split(pt,len(pt)/size)
-print("encryption is :")
-b=""
-for a in ptm:
-    a = a.reshape(size,1)
-    encr = np.dot(keym,a)%26
-    for a in np.nditer(encr):
-        b+=chr(a+97)
-        print(chr(a+97),end="")
+key=input ("Enter key:")
+Key=key.replace(" "," ")
+key=key.upper()
 
-adj = np.linalg.inv(keym)
-det = round(np.linalg.det(keym))
+def matrix (x,y, initial): 
+    return [[initial for i in range(x)] for j in range(y)]
 
-adj = (adj * det)%26
-np.set_printoptions(suppress=True)
-det= det%26
+result = list()
 
-x = 1
-while((det*x)%26 != 1): 
-    x += 1 
-final = (x * adj)%26
-print("inverse: ",final)
-print("decrypted text is: ")
-b=np.array([ord(a)-97 for a in b])
-encm = np.array_split(b, len(b)/size)
-for a in encm:
-    a = a.reshape(size,1)
-    decr = np.round(np.dot(final, a))
-    decr = decr.astype(int)
-    decr = decr%26
-    for a in np.nditer(decr):
-        print(chr(a+97), end = "")
+for c in key:
+    if c not in result:
+        if c=="J":
+            result. append("I")
+        else:
+            result.append(c)
+
+
+flag=0
+
+for i in range (65,91):
+    if chr(i) not in result:
+        if i==73 and chr(74) not in result:
+            result.append ("I")
+            flag=1
+        elif flag== 0 and i==73 or i==74: pass
+
+        else:
+            result.append(chr(i))
+            
+k=0
+my_matrix = matrix (5,5,0)
+for i in range(0,5):
+    for j in range(0,5):
+        my_matrix[i][j] = result [k]
+        k+=1
+print (my_matrix)
+
+def locindex(c):
+    loc = list()
+    if c=="J":
+        c="I"
+    
+    for i,j in enumerate(my_matrix): 
+        for k,l in enumerate (j):
+            if c==l:
+                loc.append(i)
+                loc.append(k)
+                return loc
+
+def encrypt():
+
+    msg=str(input(" Enter msg:"))
+    msg=msg.upper()
+    msg=msg.replace(" "," ")
+    i=0
+    for s in range(0,len(msg)+1,2):
+        if s<len(msg)-1:
+            if msg[s]==msg[s+1]:
+                msg = msg [:s+1] + "X" + msg[s+1:]
+    if len(msg)%2!=0:
+        msg = msg[:]+"Z"
+    print ("CIPHER TEXT:",end=" ")
+    while i<len(msg): 
+        loc= list()
+        loc = locindex(msg[i])
+        loc1= list()
+        loc1 = locindex(msg[i+1])
+
+        if loc[1] == loc1[1]:
+            print("{} {}".format(my_matrix[(loc[0]+1)%5][loc[1]],my_matrix[(loc1[0] + 1)%5][loc1[1]]),end=" ")
+        elif loc[0] == loc1[0]: 
+            print("{} {}".format(my_matrix[loc[0]][(loc[1]+1)%5],my_matrix[loc1[0]][(loc1[1]+1)%5]),end=" ")
+        else:
+            print("{} {}".format(my_matrix[loc[0]][loc1[1]],my_matrix[loc1[0]][loc[1]]),end=" ")
+        i=i+2
+
+encrypt()
